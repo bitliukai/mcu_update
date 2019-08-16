@@ -365,7 +365,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\..\..\..\..\Drivers\BSP\STM32F4xx-Nucleo</IncludePath>
+              <IncludePath>..\Inc;..\..\..\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\..\..\..\..\Drivers\BSP\STM32F4xx-Nucleo;..\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -445,6 +445,31 @@
               <FileName>stm32f4xx_hal_dma_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>MApp_Update.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\MApp_Update.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_eth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_eth.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_flash_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_flash_ramfunc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,40 +1,32 @@
-/* Includes ------------------------------------------------------------------*/
+/**
+*
+*  @Description:   
+                   stm32 在线升级demo , 使用片内sram重定向实现\
+                   适用于.bin size<96KB 的程序  \
+                   使用Python通过串口将镜像发送至下位机 ， 以后根据使用场景可以扩展为USB , Ethnet , CAN \
+                   下位机解析报文并擦写flash，实现升级
+                   
+*  @Author     :   刘 凯
+*  @Date       :   2019-08-16
+*  @Company    :   ZTE.Inc (Copyright) 
+*
+*/
 
 #include "main.h"
-
-/****************************************************/
-/***************Function Prototype*******************/ 
-/****************************************************/
+#include "Mapp.h"
+/**
+*
+*    Function Prototype
+*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
-status TIM2_Init(uint32_t Period);
-void  UART_Init(void);  
-status BSP_EXTI13_Init(UINT8 EdgeFlag);
-status BSP_EXTI0_Init(UINT8 EdgeFlag);
 
-UINT8 PID_Execute(void);
-/*--------------------------------------------------*/
 
-#define  T    10.0
-#define  Ti   20.0
-#define  Kp   1.0
-#define  Td   0
-#define  DA_STAND  1241  //1000mV
-#define  PID_MAX   2048
-#define  PID_MIN    0
-typedef  struct 
-{
-    UINT16 dealt_now;
-    UINT16 dealt_last;
-    UINT16 dealt_last_last;
-    UINT16 dealt_o;
-}PID_T;
-
-/****************************************************/
-/*********Global Variables Definition****************/
-/****************************************************/
-
+/**
+*
+*    Global Variables Definition
+*/
 UART_HandleTypeDef UartHandle;
 GPIO_InitTypeDef   GPIO_InitStructure;
 UINT8  g_exti13_flag;
@@ -43,64 +35,118 @@ UINT16 g_exti13_cnt;
 UINT16 g_exti0_cnt;
 UINT16 g_current_time;
 
-/*--------------------------------------------------*/
 
-/****************************************************/
-/******************Main Routine *********************/
-/****************************************************/
+/**
+*
+*    store the raw bin data parsr from packet
+*/
+FLASH_SIZE   code_bin[FLASH_ERASE_SIZE]={0};
 
-int main(void)
+/**
+*
+*     main state machine 
+*/
+TOP_STATE  state_of_top=STATE_TOP_INIT;
+
+/**
+*
+*      main routine entry
+*/
+int  main(void)
 {
  
-  uint16_t  old_time;
-  PID_T pid;
-  HAL_Init();
-  
-  /* Configure the system clock to 84 MHz */
-  SystemClock_Config();
-  
-  UART_Init();
-  BSP_LED_Init(LED2);
+    MAPP_LOG(printf("Entering main...\n\n"););
     
-  /*起一个1ms的定时器*/
-  if(TIM2_Init(10) != STATUS_OK)  
+    #if CONFIG_PID
+      uint16_t  old_time;
+      PID_T pid;
+    #endif 
+    
+  switch (state_of_top)
   {
-     printf("Time2 init Failed...\r\n"); 
-  }
-   
-  old_time = 0;
-  
-  if(BSP_EXTI13_Init(TOGGLE_FALLING) != STATUS_OK)
-  {
-      printf("\r\nEXTI13 init Failed...");
-  }
-  if(BSP_EXTI0_Init(TOGGLE_FALLING) != STATUS_OK)
-  {
-      printf("\r\nEXTI0init Failed...");
-  }
+      case STATE_TOP_INIT:
+          MAPP_LOG(printf("Top state:STATE_TOP_INIT"));
+                  HAL_Init();
+                  /* Configure the system clock to 84 MHz */
+                  SystemClock_Config();
+                  
+                  #if CONFIG_UART
+                  UART_Init();
+                  #endif 
+                    
+                  #if CONFIG_LED
+                  BSP_LED_Init(LED2);
+                  #endif 
+                    
+                  #if CONFIG_PID
+                  /*起一个1ms的定时器*/
+                  if(TIM2_Init(10) != STATUS_OK)  
+                  {
+                     printf("Time2 init Failed...\r\n"); 
+                  }
+                  
+                  old_time = 0;
+                  #endif 
+                  
+                  #if CONFIG_EXTI_INTERRUPT
+                   if(BSP_EXTI13_Init(TOGGLE_FALLING) != STATUS_OK)
+                  {
+                      printf("\r\nEXTI13 init Failed...");
+                  }
+                  if(BSP_EXTI0_Init(TOGGLE_FALLING) != STATUS_OK)
+                  {
+                      printf("\r\nEXTI0init Failed...");
+                  }
+                  #endif 
+                  
+                  state_of_top = STATE_TOP_LOOP;
+          break;
+      case STATE_TOP_UPDATE:
+          
       
-  /*****************Infinite loop*****************/ 
-  while (1)
-  {   
-     //10ms执行一次PID程序
-     if(g_current_time-old_time >= 10)   
-     {
-         old_time = g_current_time;
-         BSP_LED_Toggle(LED2);
-         PID_Execute();
-     }
-     
-     //printf("\r\ncurrent_time :%d s" , g_current_time);  
-     
-  }
-}
-/*---------end of while-------------*/
+                      MAPP_LOG(printf("Top state:STATE_TOP_UPDATE"));
+                   
+                    if(1) //
+                          state_of_top=STATE_TOP_RESET;
+          break;
+      case STATE_TOP_RESET:
+          
+                     MAPP_LOG(printf("Top state:STATE_TOP_RESET"));
+
+          break;
+      case STATE_TOP_LOOP:
+          
+                    MAPP_LOG(printf("Top state:STATE_TOP_LOOP"));
+
+             #if CONFIG_PID
+                     //10ms执行一次PID程序
+                     if(g_current_time-old_time >= 10)   
+                     {
+                         old_time = g_current_time;
+                         BSP_LED_Toggle(LED2);
+                         PID_Execute();
+                     }
+             #endif 
+             
+               #if CONFIG_LED
+                     BSP_LED_Toggle(LED2);
+               #endif 
+          break;
+      default:
+          break;
+  } /*end of switch */
+}  /*end of main*/
+
+
+#if CONFIG_PID
 
 UINT8 PID_Execute(void)
 {
+    #if CONFIG_PID
     PID_T pid;
     UINT16 ad_val;
     UINT16 da_val;
+    #endif 
     
     //STM32_READ_AD(&ad_val);
     
@@ -119,6 +165,7 @@ UINT8 PID_Execute(void)
     //STM32_WRITE_DA(pid.dealt_o);
     
 }
+#endif
 
 /*--------------------------------------------------*/
 

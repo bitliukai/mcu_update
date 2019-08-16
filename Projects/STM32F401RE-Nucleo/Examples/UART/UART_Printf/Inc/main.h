@@ -109,6 +109,16 @@ typedef enum
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+
+status TIM2_Init(uint32_t Period);
+void  UART_Init(void);  
+status BSP_EXTI13_Init(UINT8 EdgeFlag);
+status BSP_EXTI0_Init(UINT8 EdgeFlag);
+
+#if CONFIG_PID
+UINT8 PID_Execute(void);
+#endif 
+
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
