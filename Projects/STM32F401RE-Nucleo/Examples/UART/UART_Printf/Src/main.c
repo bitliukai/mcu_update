@@ -1,15 +1,15 @@
 /**
-*
-*  @Description:   
-                   stm32 在线升级demo , 使用片内sram重定向实现\
-                   适用于.bin size<96KB 的程序  \
-                   使用Python通过串口将镜像发送至下位机 ， 以后根据使用场景可以扩展为USB , Ethnet , CAN \
-                   下位机解析报文并擦写flash，实现升级
-                   
-*  @Author     :   刘 凯
-*  @Date       :   2019-08-16
-*  @Company    :   ZTE.Inc (Copyright) 
-*
+    *  @file    main.c
+    *  @Description:   
+                       stm32 在线升级demo , 使用片内sram重定向实现\
+                       适用于.bin size<96KB 的程序  \
+                       使用Python通过串口将镜像发送至下位机 ， 以后根据使用场景可以扩展为USB , Ethnet , CAN \
+                       下位机解析报文并擦写flash，实现升级
+                       
+    *  @Author     :   刘 凯
+    *  @Date       :   2019-08-16
+    *  @Company    :   ZTE.Inc (Copyright) 
+    *
 */
 
 #include "main.h"
